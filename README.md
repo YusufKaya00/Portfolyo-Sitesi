@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/5caf34ad-fe30-4e22-8e72-38b30ff168e7)# Portfolyo-Sitesi
+# Portfolyo-Sitesi
 Okul projesi için yapmakta olduğum web projesi
 
 
