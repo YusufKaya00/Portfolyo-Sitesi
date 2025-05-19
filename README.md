@@ -131,6 +131,8 @@ Görüntüler .
 ![image](https://github.com/user-attachments/assets/2ef34a5b-09be-4185-bb39-0621e7e56d25)
 ![image](https://github.com/user-attachments/assets/b1198904-abd6-4b03-a059-d3d3463acdf7)
 ![image](https://github.com/user-attachments/assets/0e1fc6a5-2933-41f2-bdcc-fd160c1dae4c)
+![image](https://github.com/user-attachments/assets/ba7e6d3d-3eb4-4cc8-9f52-6b034a40de24)
+
 
 
 
