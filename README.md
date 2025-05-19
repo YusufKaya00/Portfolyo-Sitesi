@@ -119,10 +119,28 @@ Okul projesi için Modern web teknolojileri kullanılarak geliştirmekte olduğu
 
 Görüntüler .
 
-![image](https://github.com/user-attachments/assets/1d0e334c-0fff-42b5-b465-f483c4e8f48d)
-![image](https://github.com/user-attachments/assets/1cca98ac-f37d-405c-8706-7618cb57c888)
-![image](https://github.com/user-attachments/assets/2bf9cfdf-72d0-4487-8903-b7dffb0a3699)
-![image](https://github.com/user-attachments/assets/59f41e67-01c9-4730-a5a3-6e79e838654a)
+![image](https://github.com/user-attachments/assets/521a1a98-31f9-4ed9-9f51-5a2b72e64ce7)
+![image](https://github.com/user-attachments/assets/9dc6d2e2-1881-4a28-b01f-b45113a11ce3)
+![image](https://github.com/user-attachments/assets/2cc28de5-a29e-4fb6-8e8d-7b2a3bb8e6fd)
+![image](https://github.com/user-attachments/assets/4c6cddc0-8c18-42b6-a83a-8fd9c8a503ef)
+![image](https://github.com/user-attachments/assets/1a685beb-151c-4199-a766-456784830cf7)
+![image](https://github.com/user-attachments/assets/0cb11cf4-5adb-4448-a4e6-49160ab27838)
+![image](https://github.com/user-attachments/assets/22215efd-f6d1-4533-9728-a58120234693)
+![image](https://github.com/user-attachments/assets/6bd53680-3a2b-4ef0-9472-f0f122bdf762)
+![image](https://github.com/user-attachments/assets/d1912471-c714-4d49-a16e-cdf021509700)
+![image](https://github.com/user-attachments/assets/2ef34a5b-09be-4185-bb39-0621e7e56d25)
+![image](https://github.com/user-attachments/assets/b1198904-abd6-4b03-a059-d3d3463acdf7)
+![image](https://github.com/user-attachments/assets/0e1fc6a5-2933-41f2-bdcc-fd160c1dae4c)
+
+
+
+
+
+
+
+
+
+
 
 
 
