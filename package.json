@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "start": "next start -p $PORT",
+    "production-build": "next build --no-lint",
+    "postbuild": "node render-verify.js",
+    "start": "node server.js",
     "lint": "next lint"
   },
   "dependencies": {
