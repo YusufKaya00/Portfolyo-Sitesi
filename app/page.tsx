@@ -239,7 +239,7 @@ export default function Home() {
             >
               <div className="aspect-w-16 aspect-h-9">
                 <Image
-                  src="/ida.jpg"
+                  src="/projects/ida/ida.jpg"
                   alt="IDA Interface"
                   width={800}
                   height={450}
@@ -303,7 +303,7 @@ export default function Home() {
             >
               <div className="aspect-w-16 aspect-h-9">
                 <Image
-                  src="/air-defence.png"
+                  src="/projects/air-defence/air-defence.png"
                   alt="Air Defence Interface"
                   width={800}
                   height={450}
@@ -335,7 +335,7 @@ export default function Home() {
             >
               <div className="aspect-w-16 aspect-h-9">
                 <Image
-                  src="/iha1.jpg"
+                  src="/projects/iha-simulation/iha1.jpg"
                   alt="IHA Simulation"
                   width={800}
                   height={450}
