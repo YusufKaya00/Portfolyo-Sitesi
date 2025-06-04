@@ -7,7 +7,7 @@
     "build": "next build",
     "production-build": "next build --no-lint",
     "postbuild": "node render-verify.js",
-    "start": "node server.js",
+    "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
