@@ -2,14 +2,16 @@
   "name": "portfolio-blog",
   "version": "0.1.0",
   "private": true,
+  
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
-    "production-build": "next build --no-lint",
-    "postbuild": "node render-verify.js",
-    "start": "next start",
-    "lint": "next lint"
-  },
+  "dev": "next dev --turbopack",
+  "build": "next build",
+  "production-build": "next build --no-lint",
+  "postbuild": "node render-verify.js",
+  "start": "node .next/standalone/server.js",
+  "lint": "next lint"
+       },
+
   "dependencies": {
     "@google/generative-ai": "^0.24.0",
     "@types/nodemailer": "^6.4.17",
