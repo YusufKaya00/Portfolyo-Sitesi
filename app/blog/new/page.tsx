@@ -1,10 +1,29 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 
-export default function NewBlogPost() {
+// Loading component for Suspense
+function Loading() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+      <div className="text-white text-xl">Yükleniyor...</div>
+    </div>
+  );
+}
+
+// Main page component wrapped with Suspense
+export default function NewBlogPostPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <NewBlogPost />
+    </Suspense>
+  );
+}
+
+// The actual blog post component
+function NewBlogPost() {
   const router = useRouter();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');

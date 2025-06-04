@@ -1,12 +1,27 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import ImageModal from '@/components/ImageModal';
 
-export default function IhaSimulationProject() {
+// Create a loading component for Suspense
+function Loading() {
+  return <div className="text-white text-center py-12">Loading...</div>;
+}
+
+// Main component wrapped with Suspense
+export default function IhaSimulationPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <IhaSimulationProject />
+    </Suspense>
+  );
+}
+
+// The actual project component
+function IhaSimulationProject() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   // Resime tıklama işlemi

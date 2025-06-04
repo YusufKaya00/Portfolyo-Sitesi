@@ -3,26 +3,24 @@
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 
 interface ClientLayoutProps {
   children: React.ReactNode;
 }
 
-export default function ClientLayout({ children }: ClientLayoutProps) {
+function SearchParamsHandler({ setLayoutKeyCallback }: { setLayoutKeyCallback: (key: string) => void }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [layoutKey, setLayoutKey] = useState<string>('');
   
-  // Generate a unique key for the layout that includes hash fragments
   useEffect(() => {
     // Update the key when hash changes
     const handleHashChange = () => {
-      setLayoutKey(`${pathname}${window.location.hash}`);
+      setLayoutKeyCallback(`${pathname}${window.location.hash}`);
     };
     
     // Set initial key
-    setLayoutKey(`${pathname}${window.location.hash}`);
+    setLayoutKeyCallback(`${pathname}${window.location.hash}`);
     
     // Listen for hash changes
     window.addEventListener('hashchange', handleHashChange);
@@ -30,10 +28,21 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     return () => {
       window.removeEventListener('hashchange', handleHashChange);
     };
-  }, [pathname, searchParams]);
+  }, [pathname, searchParams, setLayoutKeyCallback]);
+  
+  return null;
+}
+
+export default function ClientLayout({ children }: ClientLayoutProps) {
+  const pathname = usePathname();
+  const [layoutKey, setLayoutKey] = useState<string>('');
 
   return (
     <>
+      <Suspense fallback={null}>
+        <SearchParamsHandler setLayoutKeyCallback={setLayoutKey} />
+      </Suspense>
+      
       <nav className="bg-gradient-to-r from-gray-900/40 to-gray-800/40 backdrop-blur-lg shadow-lg fixed w-full z-50 border-b border-gray-700/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">

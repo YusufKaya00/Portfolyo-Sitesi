@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Survey, Submission, QuestionType } from './types/index';
 import SurveyList from './components/SurveyList';
@@ -12,15 +12,16 @@ import Link from 'next/link';
 // Sayfa özellikleri
 type PageView = 'list' | 'create' | 'respond' | 'results';
 
-export default function SurveySystem() {
-  // State yönetimi
-  const [surveys, setSurveys] = useState<Survey[]>([]);
-  const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const [currentSurvey, setCurrentSurvey] = useState<Survey | null>(null);
-  const [currentView, setCurrentView] = useState<PageView>('list');
-  const [isLoading, setIsLoading] = useState(true);
-
-  // LocalStorage'dan verileri yükleme
+// LocalStorage işlemleri için ayrı bir bileşen
+function LocalStorageHandler({ 
+  setSurveysCallback, 
+  setSubmissionsCallback,
+  setLoadingCallback
+}: { 
+  setSurveysCallback: (surveys: Survey[]) => void, 
+  setSubmissionsCallback: (submissions: Submission[]) => void,
+  setLoadingCallback: (loading: boolean) => void
+}) {
   useEffect(() => {
     const savedSurveys = localStorage.getItem('surveySystemSurveys');
     const savedSubmissions = localStorage.getItem('surveySystemSubmissions');
@@ -28,7 +29,7 @@ export default function SurveySystem() {
     if (savedSurveys) {
       try {
         const parsedSurveys = JSON.parse(savedSurveys);
-        setSurveys(parsedSurveys);
+        setSurveysCallback(parsedSurveys);
       } catch (error) {
         console.error('Surveys parsing error:', error);
       }
@@ -65,14 +66,14 @@ export default function SurveySystem() {
         shareableLink: 'ornek-anket'
       };
       
-      setSurveys([exampleSurvey]);
+      setSurveysCallback([exampleSurvey]);
       localStorage.setItem('surveySystemSurveys', JSON.stringify([exampleSurvey]));
     }
     
     if (savedSubmissions) {
       try {
         const parsedSubmissions = JSON.parse(savedSubmissions);
-        setSubmissions(parsedSubmissions);
+        setSubmissionsCallback(parsedSubmissions);
       } catch (error) {
         console.error('Submissions parsing error:', error);
       }
@@ -101,12 +102,23 @@ export default function SurveySystem() {
         }
       ];
       
-      setSubmissions(exampleSubmissions);
+      setSubmissionsCallback(exampleSubmissions);
       localStorage.setItem('surveySystemSubmissions', JSON.stringify(exampleSubmissions));
     }
     
-    setIsLoading(false);
-  }, []);
+    setLoadingCallback(false);
+  }, [setSurveysCallback, setSubmissionsCallback, setLoadingCallback]);
+  
+  return null;
+}
+
+export default function SurveySystem() {
+  // State yönetimi
+  const [surveys, setSurveys] = useState<Survey[]>([]);
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [currentSurvey, setCurrentSurvey] = useState<Survey | null>(null);
+  const [currentView, setCurrentView] = useState<PageView>('list');
+  const [isLoading, setIsLoading] = useState(true);
 
   // Anket oluşturma
   const handleCreateSurvey = (survey: Survey) => {
@@ -176,6 +188,14 @@ export default function SurveySystem() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 dark:from-gray-900 dark:to-indigo-900">
       <div className="container mx-auto px-4 py-8">
+        <Suspense fallback={null}>
+          <LocalStorageHandler 
+            setSurveysCallback={setSurveys}
+            setSubmissionsCallback={setSubmissions}
+            setLoadingCallback={setIsLoading}
+          />
+        </Suspense>
+        
         {/* Üst Başlık */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}

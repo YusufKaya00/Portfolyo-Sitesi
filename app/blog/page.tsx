@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 
@@ -13,6 +13,23 @@ interface BlogPost {
   likes: string[];
 }
 
+// localStorage işlemlerini ayrı bir bileşene taşıyoruz
+function LocalStorageHandler({ setUserIdCallback }: { setUserIdCallback: (userId: string) => void }) {
+  useEffect(() => {
+    // Geçici kullanıcı ID'si oluştur
+    const storedUserId = localStorage.getItem('blogUserId');
+    if (storedUserId) {
+      setUserIdCallback(storedUserId);
+    } else {
+      const newUserId = Date.now().toString();
+      localStorage.setItem('blogUserId', newUserId);
+      setUserIdCallback(newUserId);
+    }
+  }, [setUserIdCallback]);
+  
+  return null;
+}
+
 export default function BlogPage() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,15 +38,6 @@ export default function BlogPage() {
 
   useEffect(() => {
     fetchPosts();
-    // Geçici kullanıcı ID'si oluştur
-    const storedUserId = localStorage.getItem('blogUserId');
-    if (storedUserId) {
-      setUserId(storedUserId);
-    } else {
-      const newUserId = Date.now().toString();
-      localStorage.setItem('blogUserId', newUserId);
-      setUserId(newUserId);
-    }
   }, []);
 
   const fetchPosts = async () => {
@@ -101,6 +109,10 @@ export default function BlogPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
+        <Suspense fallback={null}>
+          <LocalStorageHandler setUserIdCallback={(id) => setUserId(id)} />
+        </Suspense>
+        
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}

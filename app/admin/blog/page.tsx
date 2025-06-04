@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
 interface BlogPost {
   id: string;
@@ -11,6 +12,11 @@ interface BlogPost {
   content: string;
   createdAt: string;
   updatedAt: string;
+}
+
+function BlogSearchParams() {
+  const searchParams = useSearchParams();
+  return null; // Sadece useSearchParams kullanmak için
 }
 
 export default function AdminBlogPage() {
@@ -150,6 +156,10 @@ export default function AdminBlogPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
+        <Suspense fallback={null}>
+          <BlogSearchParams />
+        </Suspense>
+        
         <div className="flex justify-between items-center mb-8">
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
