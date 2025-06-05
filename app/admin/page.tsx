@@ -18,51 +18,125 @@ export default function AdminPage() {
   const [photoCount, setPhotoCount] = useState(0);
   const [surveyCount, setSurveyCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  
+  // Ziyaretçi sayısını artırma fonksiyonu
+  const incrementVisitorCount = () => {
+    setTotalVisits(prev => {
+      const newCount = prev + 1;
+      localStorage.setItem('totalVisits', newCount.toString());
+      return newCount;
+    });
+  };
 
   useEffect(() => {
-    // Verileri localStorage'dan yükleme
-    try {
-      // Blog verileri
-      const savedPosts = localStorage.getItem('posts');
-      if (savedPosts) {
-        const posts = JSON.parse(savedPosts) as BlogPost[];
-        // Tüm beğenileri topla
-        const likes = posts.reduce((total: number, post: BlogPost) => total + (post.likes?.length || 0), 0);
-        setTotalLikes(likes);
-        setBlogCount(posts.length);
-      }
+    // Verileri localStorage'dan yükleme ve düzenli güncelleme için
+    const loadData = () => {
+      try {
+        // Blog verileri
+        const savedPosts = localStorage.getItem('posts');
+        if (savedPosts) {
+          const posts = JSON.parse(savedPosts) as BlogPost[];
+          // Tüm beğenileri topla
+          const likes = posts.reduce((total: number, post: BlogPost) => total + (post.likes?.length || 0), 0);
+          setTotalLikes(likes);
+          setBlogCount(posts.length);
+        }
 
-      // Fotoğraf verileri
-      const savedPhotos = localStorage.getItem('photoSharingPhotos');
-      if (savedPhotos) {
-        const photos = JSON.parse(savedPhotos);
-        // Fotoğraf sayısı
-        setPhotoCount(photos.length);
-      }
+        // Fotoğraf verileri
+        const savedPhotos = localStorage.getItem('photoSharingPhotos');
+        if (savedPhotos) {
+          const photos = JSON.parse(savedPhotos);
+          // Fotoğraf sayısı
+          setPhotoCount(photos.length);
+        }
 
-      // Anket verileri
-      const savedSurveys = localStorage.getItem('surveySystemSurveys');
-      if (savedSurveys) {
-        const surveys = JSON.parse(savedSurveys);
-        setSurveyCount(surveys.length);
-      }
+        // Anket verileri
+        const savedSurveys = localStorage.getItem('surveySystemSurveys');
+        if (savedSurveys) {
+          const surveys = JSON.parse(savedSurveys);
+          setSurveyCount(surveys.length);
+        }
 
-      // Ziyaretçi sayısı (simülasyon)
-      const visits = localStorage.getItem('totalVisits');
-      if (visits) {
-        setTotalVisits(parseInt(visits));
-      } else {
-        // Rastgele bir ziyaretçi sayısı oluştur
-        const randomVisits = Math.floor(Math.random() * 500) + 100;
-        setTotalVisits(randomVisits);
-        localStorage.setItem('totalVisits', randomVisits.toString());
+        // Ziyaretçi sayısı
+        const visits = localStorage.getItem('totalVisits');
+        if (visits) {
+          setTotalVisits(parseInt(visits));
+        } else {
+          // Rastgele bir ziyaretçi sayısı oluştur
+          const randomVisits = Math.floor(Math.random() * 500) + 100;
+          setTotalVisits(randomVisits);
+          localStorage.setItem('totalVisits', randomVisits.toString());
+        }
+      } catch (error) {
+        console.error('Veri yükleme hatası:', error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('Veri yükleme hatası:', error);
-    } finally {
-      setLoading(false);
-    }
+    };
+
+    // Sayfa yüklendiğinde verileri al
+    loadData();
+
+    // Her 5 saniyede bir verileri güncelle
+    const intervalId = setInterval(loadData, 5000);
+
+    // Simüle edilmiş ziyaretçi artışı - rastgele aralıklarla
+    const simulateVisitors = () => {
+      // %70 olasılıkla ziyaretçi sayısını artır
+      if (Math.random() < 0.7) {
+        incrementVisitorCount();
+      }
+      
+      // Bir sonraki ziyareti 3-15 saniye arasında rastgele zamanla
+      const nextVisitTime = Math.floor(Math.random() * 12000) + 3000;
+      setTimeout(simulateVisitors, nextVisitTime);
+    };
+    
+    // İlk ziyaretçi simülasyonunu başlat
+    const initialDelay = Math.floor(Math.random() * 5000) + 2000;
+    setTimeout(simulateVisitors, initialDelay);
+
+    // Cleanup
+    return () => {
+      clearInterval(intervalId);
+    };
   }, []);
+
+  // Beğeni sayısını artıran demo fonksiyon
+  const incrementLikes = () => {
+    const newLikes = totalLikes + 1;
+    setTotalLikes(newLikes);
+    
+    // Mevcut blog yazılarını al
+    const savedPosts = localStorage.getItem('posts');
+    if (savedPosts) {
+      const posts = JSON.parse(savedPosts) as BlogPost[];
+      
+      // Rastgele bir yazıya beğeni ekle
+      if (posts.length > 0) {
+        const randomIndex = Math.floor(Math.random() * posts.length);
+        const selectedPost = posts[randomIndex];
+        
+        if (!selectedPost.likes) selectedPost.likes = [];
+        selectedPost.likes.push(`user-${Date.now()}`);
+        
+        // Güncellenmiş veriyi kaydet
+        localStorage.setItem('posts', JSON.stringify(posts));
+      }
+    }
+  };
+
+  // Sayaçların canlı görünmesi için
+  useEffect(() => {
+    // Rastgele zamanlarda beğeni artışı simülasyonu
+    const likesInterval = setInterval(() => {
+      if (Math.random() < 0.3) { // %30 olasılıkla beğeni ekle
+        incrementLikes();
+      }
+    }, 8000);
+    
+    return () => clearInterval(likesInterval);
+  }, [totalLikes]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
@@ -92,7 +166,16 @@ export default function AdminPage() {
                 <h3 className="text-white text-2xl font-bold mt-1">
                   {loading ? (
                     <div className="h-8 w-16 bg-blue-700/50 animate-pulse rounded"></div>
-                  ) : totalVisits.toLocaleString()}
+                  ) : (
+                    <motion.span
+                      key={totalVisits}
+                      initial={{ scale: 1.2, color: "#60a5fa" }}
+                      animate={{ scale: 1, color: "#ffffff" }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      {totalVisits.toLocaleString()}
+                    </motion.span>
+                  )}
                 </h3>
               </div>
               <div className="p-2 bg-blue-800/50 rounded-lg">
@@ -107,7 +190,7 @@ export default function AdminPage() {
                 <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
-                <span>Son 30 günde</span>
+                <span>Canlı İzleniyor</span>
               </div>
             </div>
           </div>
@@ -120,7 +203,16 @@ export default function AdminPage() {
                 <h3 className="text-white text-2xl font-bold mt-1">
                   {loading ? (
                     <div className="h-8 w-16 bg-red-700/50 animate-pulse rounded"></div>
-                  ) : totalLikes.toLocaleString()}
+                  ) : (
+                    <motion.span
+                      key={totalLikes}
+                      initial={{ scale: 1.2, color: "#f87171" }}
+                      animate={{ scale: 1, color: "#ffffff" }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      {totalLikes.toLocaleString()}
+                    </motion.span>
+                  )}
                 </h3>
               </div>
               <div className="p-2 bg-red-800/50 rounded-lg">
@@ -134,7 +226,7 @@ export default function AdminPage() {
                 <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
-                <span>Tüm içerikler</span>
+                <span>Canlı İzleniyor</span>
               </div>
             </div>
           </div>
@@ -147,7 +239,16 @@ export default function AdminPage() {
                 <h3 className="text-white text-2xl font-bold mt-1">
                   {loading ? (
                     <div className="h-8 w-16 bg-purple-700/50 animate-pulse rounded"></div>
-                  ) : blogCount.toLocaleString()}
+                  ) : (
+                    <motion.span
+                      key={blogCount}
+                      initial={{ scale: 1.2, color: "#c084fc" }}
+                      animate={{ scale: 1, color: "#ffffff" }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      {blogCount.toLocaleString()}
+                    </motion.span>
+                  )}
                 </h3>
               </div>
               <div className="p-2 bg-purple-800/50 rounded-lg">
@@ -166,7 +267,7 @@ export default function AdminPage() {
               </Link>
             </div>
           </div>
-
+          
           {/* Fotoğraflar */}
           <div className="bg-gradient-to-br from-pink-900/50 to-pink-800/50 rounded-xl p-6 shadow-lg border border-pink-800/50 backdrop-blur-sm">
             <div className="flex justify-between">
@@ -175,7 +276,16 @@ export default function AdminPage() {
                 <h3 className="text-white text-2xl font-bold mt-1">
                   {loading ? (
                     <div className="h-8 w-16 bg-pink-700/50 animate-pulse rounded"></div>
-                  ) : photoCount.toLocaleString()}
+                  ) : (
+                    <motion.span
+                      key={photoCount}
+                      initial={{ scale: 1.2, color: "#f472b6" }}
+                      animate={{ scale: 1, color: "#ffffff" }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      {photoCount.toLocaleString()}
+                    </motion.span>
+                  )}
                 </h3>
               </div>
               <div className="p-2 bg-pink-800/50 rounded-lg">
@@ -203,7 +313,16 @@ export default function AdminPage() {
                 <h3 className="text-white text-2xl font-bold mt-1">
                   {loading ? (
                     <div className="h-8 w-16 bg-green-700/50 animate-pulse rounded"></div>
-                  ) : surveyCount.toLocaleString()}
+                  ) : (
+                    <motion.span
+                      key={surveyCount}
+                      initial={{ scale: 1.2, color: "#6ee7b7" }}
+                      animate={{ scale: 1, color: "#ffffff" }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      {surveyCount.toLocaleString()}
+                    </motion.span>
+                  )}
                 </h3>
               </div>
               <div className="p-2 bg-green-800/50 rounded-lg">
