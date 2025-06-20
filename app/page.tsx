@@ -11,6 +11,8 @@ export default function Home() {
   const [fadeState, setFadeState] = useState('fade-in');
   const [displayImage, setDisplayImage] = useState('/car.jpg');
   const [nextImage, setNextImage] = useState('/car3.jpg');
+  // Sadece görünür resimleri yükle (lazy loading için)
+  const [loadedImages, setLoadedImages] = useState([0]);
   
   // Fotoğraf listesi
   const backgroundImages = [
@@ -35,6 +37,12 @@ export default function Home() {
     // 500ms sonra resmi değiştir ve fade-in başlat
     setTimeout(() => {
       const nextIndex = (currentImageIndex + 1) % backgroundImages.length;
+      
+      // Sonraki resmi önceden yükle
+      if (!loadedImages.includes(nextIndex)) {
+        setLoadedImages(prev => [...prev, nextIndex]);
+      }
+      
       setCurrentImageIndex(nextIndex);
       setDisplayImage(backgroundImages[nextIndex]);
       setNextImage(backgroundImages[(nextIndex + 1) % backgroundImages.length]);
@@ -49,7 +57,7 @@ export default function Home() {
     }, 5000);
     
     return () => clearInterval(interval);
-  }, [currentImageIndex]);
+  }, [currentImageIndex, loadedImages]);
 
   // Sayfa yüklendiğinde localStorage'dan scroll hedefini kontrol et
   useEffect(() => {
@@ -64,25 +72,6 @@ export default function Home() {
       }
     }
   }, []);
-
-  // Sadece görünür resimleri yükle (lazy loading için)
-  const [loadedImages, setLoadedImages] = useState([0]);
-  
-  // Fotoğraflar arasında otomatik geçiş - optimize edildi
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const nextIndex = currentImageIndex === backgroundImages.length - 1 ? 0 : currentImageIndex + 1;
-      
-      // Sonraki resmi önceden yükle
-      if (!loadedImages.includes(nextIndex)) {
-        setLoadedImages(prev => [...prev, nextIndex]);
-      }
-      
-      setCurrentImageIndex(nextIndex);
-    }, 5000);
-    
-    return () => clearInterval(interval);
-  }, [currentImageIndex, backgroundImages.length, loadedImages]);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -239,7 +228,7 @@ export default function Home() {
             >
               <div className="aspect-w-16 aspect-h-9">
                 <Image
-                  src="/ida.jpg"
+                  src="/projects/ida/ida.jpg"
                   alt="IDA Interface"
                   width={800}
                   height={450}
@@ -303,7 +292,7 @@ export default function Home() {
             >
               <div className="aspect-w-16 aspect-h-9">
                 <Image
-                  src="/air-defence.png"
+                  src="/projects/air-defence/air-defence.png"
                   alt="Air Defence Interface"
                   width={800}
                   height={450}
@@ -335,7 +324,7 @@ export default function Home() {
             >
               <div className="aspect-w-16 aspect-h-9">
                 <Image
-                  src="/iha1.jpg"
+                  src="/projects/iha-simulation/iha1.jpg"
                   alt="IHA Simulation"
                   width={800}
                   height={450}
