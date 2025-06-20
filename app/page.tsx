@@ -13,6 +13,7 @@ export default function Home() {
   const [nextImage, setNextImage] = useState('/car3.jpg');
   // Sadece görünür resimleri yükle (lazy loading için)
   const [loadedImages, setLoadedImages] = useState([0]);
+  const [animationsInitialized, setAnimationsInitialized] = useState(false);
   
   // Fotoğraf listesi
   const backgroundImages = [
@@ -29,6 +30,30 @@ export default function Home() {
     '/car12.jpg',
   ];
 
+  // Sayfanın tamamı yüklendiğinde ve DOM hazır olduğunda animasyonları başlat
+  useEffect(() => {
+    // Component mount olduğunda
+    setAnimationsInitialized(true);
+    
+    // Resimlerin önden yüklenmesini sağla
+    backgroundImages.slice(0, 3).forEach((img, idx) => {
+      if (!loadedImages.includes(idx)) {
+        setLoadedImages(prev => [...prev, idx]);
+        
+        // Görünmez bir img elementi oluştur ve yükle
+        if (typeof window !== 'undefined') {
+          const preloadImg = new window.Image();
+          preloadImg.src = img;
+        }
+      }
+    });
+    
+    return () => {
+      // Component unmount olduğunda
+      setAnimationsInitialized(false);
+    };
+  }, []);
+
   // Fotoğraf değiştirme fonksiyonu
   const changeImage = () => {
     // Önce fade-out başlat
@@ -41,6 +66,13 @@ export default function Home() {
       // Sonraki resmi önceden yükle
       if (!loadedImages.includes(nextIndex)) {
         setLoadedImages(prev => [...prev, nextIndex]);
+        
+        // Sonraki 2 resmi de preload et
+        const nextNextIndex = (nextIndex + 1) % backgroundImages.length;
+        if (typeof window !== 'undefined') {
+          const preloadImg = new window.Image();
+          preloadImg.src = backgroundImages[nextNextIndex];
+        }
       }
       
       setCurrentImageIndex(nextIndex);
@@ -48,16 +80,21 @@ export default function Home() {
       setNextImage(backgroundImages[(nextIndex + 1) % backgroundImages.length]);
       setFadeState('fade-in');
     }, 500); 
-  }
+  };
   
-  // Fotoğraflar arasında otomatik geçiş
+  // Fotoğraflar arasında otomatik geçiş - animasyonların başlatılmasından sonra
   useEffect(() => {
+    if (!animationsInitialized) return;
+    
+    // Sayfa ilk yüklenirken fade efektini doğru şekilde ayarla
+    setFadeState('fade-in');
+    
     const interval = setInterval(() => {
       changeImage();
     }, 5000);
     
     return () => clearInterval(interval);
-  }, [currentImageIndex, loadedImages]);
+  }, [currentImageIndex, loadedImages, animationsInitialized]);
 
   // Sayfa yüklendiğinde localStorage'dan scroll hedefini kontrol et
   useEffect(() => {
@@ -127,6 +164,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-black/70 z-10" />
         <div 
           className={`absolute inset-0 w-full h-full z-5 transition-opacity duration-1000 ${fadeState === 'fade-in' ? 'opacity-100' : 'opacity-0'}`}
+          style={{ willChange: 'opacity' }} // Daha iyi performans için
         >
           <Image
             src={displayImage}
@@ -138,15 +176,25 @@ export default function Home() {
           />
         </div>
         
-        {/* Bir sonraki resmi önceden yükle */}
+        {/* Bir sonraki ve diğer resimleri önceden yükle */}
         <div className="hidden">
           <Image 
             src={nextImage}
             alt="Preload"
             width={1}
             height={1}
-            priority={false}
+            priority={true}
           />
+          {loadedImages.map((imgIdx) => (
+            <Image
+              key={imgIdx}
+              src={backgroundImages[imgIdx]}
+              alt={`Preload ${imgIdx}`}
+              width={1}
+              height={1}
+              priority={imgIdx < 3} // İlk 3 resim priority olarak yüklenir
+            />
+          ))}
         </div>
       </div>
 

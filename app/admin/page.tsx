@@ -19,6 +19,39 @@ export default function AdminPage() {
   const [surveyCount, setSurveyCount] = useState(0);
   const [loading, setLoading] = useState(true);
   
+  // Kimlik doğrulama için
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [authError, setAuthError] = useState('');
+  
+  // Sayfa yüklendiğinde oturum durumunu kontrol et
+  useEffect(() => {
+    const authStatus = sessionStorage.getItem('adminAuthenticated');
+    if (authStatus === 'true') {
+      setIsAuthenticated(true);
+    }
+  }, []);
+  
+  // Giriş fonksiyonu
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (username === 'sky' && password === 'bsd') {
+      setIsAuthenticated(true);
+      sessionStorage.setItem('adminAuthenticated', 'true');
+      setAuthError('');
+    } else {
+      setAuthError('Geçersiz kullanıcı adı veya şifre!');
+    }
+  };
+  
+  // Çıkış fonksiyonu
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    sessionStorage.removeItem('adminAuthenticated');
+  };
+  
   // Ziyaretçi sayısını artırma fonksiyonu
   const incrementVisitorCount = () => {
     setTotalVisits(prev => {
@@ -138,6 +171,79 @@ export default function AdminPage() {
     return () => clearInterval(likesInterval);
   }, [totalLikes]);
 
+  // Eğer kimlik doğrulama yapılmamışsa, giriş formunu göster
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-md w-full p-8 bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-2xl border border-gray-700"
+        >
+          <h2 className="text-3xl font-bold text-white mb-6 text-center">Admin Paneli</h2>
+          <p className="text-gray-400 mb-8 text-center">Lütfen giriş bilgilerinizi giriniz</p>
+          
+          {authError && (
+            <div className="bg-red-900/50 border border-red-700 text-red-300 px-4 py-3 rounded mb-6">
+              <p>{authError}</p>
+            </div>
+          )}
+          
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div>
+              <label htmlFor="username" className="block text-sm font-medium text-gray-300">
+                Kullanıcı Adı
+              </label>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="mt-1 block w-full bg-gray-700/50 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-300">
+                Şifre
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-1 block w-full bg-gray-700/50 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+            </div>
+            
+            <div>
+              <button
+                type="submit"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Giriş Yap
+              </button>
+            </div>
+          </form>
+          
+          <div className="mt-6">
+            <Link href="/" className="text-sm text-indigo-400 hover:text-indigo-300 flex items-center justify-center">
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Ana Sayfaya Dön
+            </Link>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -145,10 +251,19 @@ export default function AdminPage() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-12"
+          className="mb-12 flex justify-between items-center"
         >
-          <h1 className="text-4xl font-bold text-white mb-2">Admin Paneli</h1>
-          <p className="text-gray-400">Site yönetimi için gerekli araçları buradan kullanabilirsiniz.</p>
+          <div>
+            <h1 className="text-4xl font-bold text-white mb-2">Admin Paneli</h1>
+            <p className="text-gray-400">Site yönetimi için gerekli araçları buradan kullanabilirsiniz.</p>
+          </div>
+          
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 bg-red-600/30 hover:bg-red-600/50 text-red-200 rounded-lg border border-red-500/30 transition-colors"
+          >
+            Çıkış Yap
+          </button>
         </motion.div>
 
         {/* İstatistik Kartları */}

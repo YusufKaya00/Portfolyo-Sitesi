@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { tr } from 'date-fns/locale';
+import { useRouter } from 'next/navigation';
 
 // Anket ve cevap tipleri
 interface Question {
@@ -38,12 +39,25 @@ interface Submission {
 }
 
 export default function AdminSurveys() {
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedSurvey, setExpandedSurvey] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [editingSurvey, setEditingSurvey] = useState<Survey | null>(null);
+
+  // Kimlik doğrulama kontrolü
+  useEffect(() => {
+    const authStatus = sessionStorage.getItem('adminAuthenticated');
+    if (authStatus !== 'true') {
+      router.push('/admin');
+    } else {
+      setIsAuthenticated(true);
+    }
+    setLoading(false);
+  }, [router]);
 
   // LocalStorage'dan verileri yükleme
   useEffect(() => {
@@ -115,6 +129,20 @@ export default function AdminSurveys() {
     return submissions.filter(submission => submission.surveyId === surveyId).length;
   };
 
+  // Sayfa yüklenene kadar yükleniyor ekranı göster
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+        <div className="text-white text-xl">Yükleniyor...</div>
+      </div>
+    );
+  }
+  
+  // Kimlik doğrulanmadıysa içerik gösterilmeyecek (router.push ile admin sayfasına yönlendirilecek)
+  if (!isAuthenticated) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -136,13 +164,6 @@ export default function AdminSurveys() {
             <span className="ml-2">Anketleri düzenleyin, silin ve yönetin</span>
           </p>
         </motion.div>
-
-        {/* Yükleniyor */}
-        {loading && (
-          <div className="flex justify-center my-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
-          </div>
-        )}
 
         {/* Anket listesi */}
         {!loading && (
