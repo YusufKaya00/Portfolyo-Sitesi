@@ -35,18 +35,17 @@ export default function Home() {
     // Component mount olduğunda
     setAnimationsInitialized(true);
     
-    // Resimlerin önden yüklenmesini sağla
-    backgroundImages.slice(0, 3).forEach((img, idx) => {
-      if (!loadedImages.includes(idx)) {
-        setLoadedImages(prev => [...prev, idx]);
-        
-        // Görünmez bir img elementi oluştur ve yükle
-        if (typeof window !== 'undefined') {
-          const preloadImg = new window.Image();
-          preloadImg.src = img;
-        }
-      }
-    });
+    // Sadece ilk iki resmi önden yükle
+    const currentIdx = currentImageIndex;
+    const nextIdx = (currentImageIndex + 1) % backgroundImages.length;
+    
+    if (!loadedImages.includes(currentIdx)) {
+      setLoadedImages(prev => [...prev, currentIdx]);
+    }
+    
+    if (!loadedImages.includes(nextIdx)) {
+      setLoadedImages(prev => [...prev, nextIdx]);
+    }
     
     return () => {
       // Component unmount olduğunda
@@ -63,21 +62,22 @@ export default function Home() {
     setTimeout(() => {
       const nextIndex = (currentImageIndex + 1) % backgroundImages.length;
       
-      // Sonraki resmi önceden yükle
+      // Sonraki resmi önceden yükle - sadece bir sonraki
       if (!loadedImages.includes(nextIndex)) {
         setLoadedImages(prev => [...prev, nextIndex]);
-        
-        // Sonraki 2 resmi de preload et
-        const nextNextIndex = (nextIndex + 1) % backgroundImages.length;
-        if (typeof window !== 'undefined') {
-          const preloadImg = new window.Image();
-          preloadImg.src = backgroundImages[nextNextIndex];
-        }
+      }
+      
+      // Bir sonraki resmin indeksini hesapla (sonraki değişimde kullanılacak)
+      const nextNextIndex = (nextIndex + 1) % backgroundImages.length;
+      
+      // Sonraki değişimde kullanılacak resmi de ekleyelim
+      if (!loadedImages.includes(nextNextIndex)) {
+        setLoadedImages(prev => [...prev, nextNextIndex]);
       }
       
       setCurrentImageIndex(nextIndex);
       setDisplayImage(backgroundImages[nextIndex]);
-      setNextImage(backgroundImages[(nextIndex + 1) % backgroundImages.length]);
+      setNextImage(backgroundImages[nextNextIndex]);
       setFadeState('fade-in');
     }, 500); 
   };
@@ -170,31 +170,21 @@ export default function Home() {
             src={displayImage}
             alt="Background"
             fill
-            quality={80}
+            quality={70} // Kaliteyi biraz düşürdüm
             priority={true}
             className="object-cover object-center"
           />
         </div>
         
-        {/* Bir sonraki ve diğer resimleri önceden yükle */}
+        {/* Sadece bir sonraki resmi önceden yükle, görünmez resim elementlerini kaldırdım */}
         <div className="hidden">
           <Image 
             src={nextImage}
             alt="Preload"
             width={1}
             height={1}
-            priority={true}
+            priority={false}
           />
-          {loadedImages.map((imgIdx) => (
-            <Image
-              key={imgIdx}
-              src={backgroundImages[imgIdx]}
-              alt={`Preload ${imgIdx}`}
-              width={1}
-              height={1}
-              priority={imgIdx < 3} // İlk 3 resim priority olarak yüklenir
-            />
-          ))}
         </div>
       </div>
 
